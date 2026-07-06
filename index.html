@@ -160,7 +160,10 @@
       var form = e.target;
 
       var firstName = form.first_name.value.trim();
-      var lead = {
+      // Send fields as URL query params so they arrive under `queryParams` in
+      // Agenci.io — matching the mapping set up in the workflow. This is also a
+      // CORS "simple" request (no preflight), so the browser never blocks it.
+      var params = new URLSearchParams({
         firstName: firstName,
         email: form.email.value.trim(),
         phone: form.phone.value.trim(),
@@ -168,7 +171,8 @@
         source: "Landing Page",
         submittedAt: new Date().toISOString(),
         pageUrl: window.location.href
-      };
+      });
+      var endpoint = AGENCI_WEBHOOK + "?" + params.toString();
 
       var thankYou = "thank-you.html?name=" + encodeURIComponent(firstName);
 
@@ -187,10 +191,8 @@
         // text/plain is a CORS-"safelisted" content type, so the browser sends
         // the POST directly with no preflight (which the webhook may not answer).
         // Agenci.io/GHL still parses the JSON string body correctly.
-        fetch(AGENCI_WEBHOOK, {
+        fetch(endpoint, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify(lead),
           signal: controller.signal,
           keepalive: true
         }).then(go).catch(go);
