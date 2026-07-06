@@ -184,9 +184,12 @@
       try {
         var controller = new AbortController();
         setTimeout(function () { controller.abort(); go(); }, 3000);
+        // text/plain is a CORS-"safelisted" content type, so the browser sends
+        // the POST directly with no preflight (which the webhook may not answer).
+        // Agenci.io/GHL still parses the JSON string body correctly.
         fetch(AGENCI_WEBHOOK, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
           body: JSON.stringify(lead),
           signal: controller.signal,
           keepalive: true
