@@ -155,14 +155,26 @@
       separateDialCode: true,
       autoPlaceholder: "aggressive",
       geoIpLookup: function (success) {
-        // Primary: ipapi.co. Fallback: ipwho.is. Last resort: US.
-        fetch("https://ipapi.co/json")
-          .then(function (res) { if (!res.ok) { throw new Error("ipapi"); } return res.json(); })
-          .then(function (data) { success(data && data.country_code ? data.country_code : "us"); })
+        // Detect the visitor's country from their IP so the dial code is
+        // pre-filled automatically (Lebanon -> +961, UAE -> +971, etc.).
+        // Only accept a real 2-letter ISO code — some providers return a
+        // 200 with an error body when rate-limited, which must NOT be treated
+        // as a valid country (that would silently default everyone to US).
+        function isCode(c) { return typeof c === "string" && /^[A-Za-z]{2}$/.test(c); }
+        // 1) geojs.io — keyless, CORS-enabled, no rate-limit games.
+        fetch("https://get.geojs.io/v1/ip/country.json")
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data && isCode(data.country)) { success(data.country); return; }
+            throw new Error("geojs");
+          })
           .catch(function () {
+            // 2) ipwho.is fallback.
             fetch("https://ipwho.is/")
               .then(function (res) { return res.json(); })
-              .then(function (data) { success(data && data.country_code ? data.country_code : "us"); })
+              .then(function (data) {
+                success(data && data.success !== false && isCode(data.country_code) ? data.country_code : "us");
+              })
               .catch(function () { success("us"); });
           });
       },
