@@ -9,6 +9,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
+<style>
+  /* Survey popup: wider panel, minimal padding, scrolls if taller than viewport */
+  .modal-panel--survey {
+    max-width: 620px;
+    padding: 44px 16px 16px;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .modal-panel--survey iframe { display: block; width: 100%; border: none; min-height: 480px; }
+</style>
 <!-- Agenci.io external tracking -->
 <script
   src="https://app.englishwithsamar.com/js/external-tracking.js"
@@ -53,7 +63,7 @@
         <p class="cta-card__text">Book a free 15‑minute English breakthrough call and we'll build a simple plan around your goals — no pressure, no pitch.</p>
       </div>
       <div class="cta-card__action">
-        <a href="#" class="btn btn--primary btn--xl">Book my free call</a>
+        <button type="button" class="btn btn--primary btn--xl" data-open-survey>Book my free call</button>
         <span class="cta-card__slots">Limited slots each week</span>
       </div>
     </div>
@@ -112,6 +122,35 @@
     </span>
     <div class="site-footer__meta">&#169; 2026 Speak Freely &#183; Privacy &#183; Terms</div>
   </footer>
+
+  <!-- Booking survey popup -->
+  <div class="modal-overlay" id="survey-modal" data-backdrop-close>
+    <div class="modal-panel modal-panel--survey">
+      <button type="button" class="modal-close" aria-label="Close" data-close-survey>&#215;</button>
+      <iframe src="https://app.englishwithsamar.com/widget/survey/qlJQNj9iGqK8BM5xyDX7"
+        style="border:none;width:100%;" scrolling="no"
+        id="qlJQNj9iGqK8BM5xyDX7" title="survey"></iframe>
+    </div>
+  </div>
+  <script src="https://app.englishwithsamar.com/js/form_embed.js"></script>
+  <script>
+    (function () {
+      var modal = document.getElementById('survey-modal');
+      function openSurvey() { modal.classList.add('is-open'); document.body.style.overflow = 'hidden'; }
+      function closeSurvey() { modal.classList.remove('is-open'); document.body.style.overflow = ''; }
+
+      document.querySelectorAll('[data-open-survey]').forEach(function (el) {
+        el.addEventListener('click', openSurvey);
+      });
+      document.querySelectorAll('[data-close-survey]').forEach(function (el) {
+        el.addEventListener('click', closeSurvey);
+      });
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeSurvey(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) closeSurvey();
+      });
+    })();
+  </script>
 
 </body>
 </html>
