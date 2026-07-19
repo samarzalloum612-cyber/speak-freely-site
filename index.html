@@ -13,6 +13,13 @@
 <script
   src="https://app.englishwithsamar.com/js/external-tracking.js"
   data-tracking-id="tk_37529f232c7f46e1adb16443847253c5"></script>
+<!-- intl-tel-input: phone country-code auto-detect -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/css/intlTelInput.css" />
+<style>
+  /* Make the intl-tel-input wrapper match the other stacked form inputs */
+  .modal-form .iti { display: block; width: 100%; }
+  .modal-form .iti__flag-container { z-index: 3; }
+</style>
 </head>
 <body>
 
@@ -129,6 +136,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/intlTelInput.min.js"></script>
   <script>
     /* ---- Agenci.io integration config ---- */
     /* Leads are POSTed to this Agenci.io Inbound Webhook, then the visitor is
@@ -136,6 +144,30 @@
     var AGENCI_WEBHOOK = "https://services.leadconnectorhq.com/hooks/0mdHacoqdhTEKdndhnbt/webhook-trigger/1f6efdee-c61d-468f-84b9-506b7fdd304f";
 
     var modal = document.getElementById('optin-modal');
+
+    /* ---- Phone: auto-detect the visitor's country code ---- */
+    /* intl-tel-input guesses the country from the visitor's IP, prefills the
+       flag + dial code, and (on submit) prepends that code to the number even
+       if they typed only their local digits. */
+    var phoneInput = document.querySelector('#optin-form input[name="phone"]');
+    var iti = window.intlTelInput(phoneInput, {
+      initialCountry: "auto",
+      separateDialCode: true,
+      autoPlaceholder: "aggressive",
+      geoIpLookup: function (success) {
+        // Primary: ipapi.co. Fallback: ipwho.is. Last resort: US.
+        fetch("https://ipapi.co/json")
+          .then(function (res) { if (!res.ok) { throw new Error("ipapi"); } return res.json(); })
+          .then(function (data) { success(data && data.country_code ? data.country_code : "us"); })
+          .catch(function () {
+            fetch("https://ipwho.is/")
+              .then(function (res) { return res.json(); })
+              .then(function (data) { success(data && data.country_code ? data.country_code : "us"); })
+              .catch(function () { success("us"); });
+          });
+      },
+      utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js"
+    });
 
     function openModal() {
       modal.classList.add('is-open');
@@ -164,13 +196,18 @@
       var form = e.target;
 
       var firstName = form.first_name.value.trim();
+      // Full E.164 number incl. the auto-detected country code (e.g. +447911123456).
+      // Falls back to the raw field if the utils script hasn't loaded yet.
+      var fullPhone = (iti && typeof iti.getNumber === "function" && iti.getNumber())
+        ? iti.getNumber()
+        : form.phone.value.trim();
       // Send fields as URL query params so they arrive under `queryParams` in
       // Agenci.io — matching the mapping set up in the workflow. This is also a
       // CORS "simple" request (no preflight), so the browser never blocks it.
       var params = new URLSearchParams({
         firstName: firstName,
         email: form.email.value.trim(),
-        phone: form.phone.value.trim(),
+        phone: fullPhone,
         instagram: form.instagram.value.trim(),
         source: "Landing Page",
         submittedAt: new Date().toISOString(),
