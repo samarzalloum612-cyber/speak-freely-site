@@ -227,7 +227,7 @@
       });
       var endpoint = AGENCI_WEBHOOK + "?" + params.toString();
 
-      var thankYou = "thank-you.html?name=" + encodeURIComponent(firstName);
+      var thankYou = "/thank-you?name=" + encodeURIComponent(firstName);
 
       // Send the lead to Agenci.io, but never let a slow/failed webhook block
       // the visitor: whatever happens, we redirect within ~3 seconds.
