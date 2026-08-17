@@ -35,6 +35,12 @@
   src: url("/assets/fonts/OpenSauceSans-Black.woff2") format("woff2");
   font-weight: 900; font-style: normal; font-display: swap;
 }
+/* Display face. Letters + digits only — punctuation falls back to Open Sauce. */
+@font-face {
+  font-family: "Brastika";
+  src: url("/assets/fonts/Brastika-Black.woff2") format("woff2");
+  font-weight: 400 900; font-style: normal; font-display: swap;
+}
 
 /* ---- Tokens --------------------------------------------------------------- */
 :root {
@@ -53,8 +59,8 @@
   --line:      #e3e8f0;
 
   --font-body: "Open Sauce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  /* Display face — swap to a licensed display font (e.g. Brastika) when available. */
-  --font-display: "Open Sauce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Brastika carries letters/digits; Open Sauce Sans backfills punctuation. */
+  --font-display: "Brastika", "Open Sauce Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   --radius:      14px;
   --radius-sm:   10px;
@@ -216,12 +222,15 @@ h1, h2, h3 { font-family: var(--font-display); margin: 0; }
 .highlight { position: relative; white-space: nowrap; color: var(--navy); }
 .highlight__mark {
   position: absolute;
-  left: -4px; right: -4px; bottom: .04em;
-  height: .42em;
+  left: -4px; right: -4px;
+  bottom: .22em;          /* tuned to Brastika's high-sitting baseline */
+  height: .30em;
   background: var(--sky);
   border-radius: 3px;
   z-index: -1;
 }
+/* Body-font highlights (subtext, not display headings) sit lower */
+p .highlight__mark { bottom: .04em; height: .34em; }
 
 /* ---- Hero ----------------------------------------------------------------- */
 .hero {
