@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="/styles.css" />
 <!-- Agenci.io external tracking -->
 <script
   src="https://app.englishwithsamar.com/js/external-tracking.js"
@@ -227,7 +227,7 @@
       });
       var endpoint = AGENCI_WEBHOOK + "?" + params.toString();
 
-      var thankYou = "/thank-you?name=" + encodeURIComponent(firstName);
+      var thankYou = "/50-power-phrases-thank-you?name=" + encodeURIComponent(firstName);
 
       // Send the lead to Agenci.io, but never let a slow/failed webhook block
       // the visitor: whatever happens, we redirect within ~3 seconds.
